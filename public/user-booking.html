@@ -6,6 +6,7 @@
   <title>Book Machine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="min-h-screen bg-gray-100 font-sans">
   <div class="container mx-auto p-6">
@@ -110,7 +111,7 @@
         startTime: new Date(startTime).toISOString()
       };
 
-      fetch("http://localhost:5001/api/bookings", {
+      fetch("https://machine-yard.vercel.app/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -27,6 +27,7 @@
             transform: scale(1.05);
         }
     </style>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans antialiased">
     <!-- Navbar Placeholder -->
@@ -139,7 +140,7 @@
         }
 
         function fetchBookings() {
-            fetch("http://localhost:5001/api/bookings/user", {
+            fetch("https://machine-yard.vercel.app/api/bookings/user", {
                 headers: { Authorization: `Bearer ${token}` },
             })
                 .then((res) => {
