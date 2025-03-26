@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machinery Hub | Equipment Rental Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-cogs text-2xl text-blue-300"></i>
+                    <span class="text-xl font-bold">MachineryHub</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="userRole" class="px-3 py-1 rounded-full bg-blue-500 text-sm font-medium"></span>
+                    <button onclick="logout()" class="flex items-center space-x-2 text-blue-100 hover:text-white transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Section -->
+        <section class="mb-8 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold text-gray-900">
+                    <i class="fas fa-search-location text-blue-500 mr-2"></i>
+                    Find Heavy Equipment
+                </h2>
+            </div>
+            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" name="location" placeholder="📍 Location" 
+                    class="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <select name="type" class="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="">All Categories</option>
+                    <option value="agriculture">Agriculture</option>
+                    <option value="construction">Construction</option>
+                    <option value="commercial">Commercial</option>
+                </select>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+                    Search Equipment
+                </button>
+            </form>
+        </section>
+
+        <!-- Dashboard Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Available Machines -->
+                <section class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                        <i class="fas fa-tractor text-blue-500 mr-2"></i>
+                        Available Machinery
+                    </h3>
+                    <div id="machinesList" class="grid grid-cols-1 gap-4">
+                        <!-- Machine cards will be dynamically inserted here -->
+                    </div>
+                </section>
+
+                <!-- Owner Section -->
+                <section id="ownerSection" class="hidden mb-8">
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800">
+                                <i class="fas fa-wrench text-green-500 mr-2"></i>
+                                My Equipment
+                            </h3>
+                            <button onclick="showAddMachineModal()" 
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                Add New Machine
+                            </button>
+                        </div>
+                        <div id="ownerMachinesList" class="grid grid-cols-1 gap-4">
+                            <!-- Owner machines will be inserted here -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Admin Section -->
+                <section id="adminSection" class="hidden mb-8">
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">
+                            <i class="fas fa-shield-alt text-red-500 mr-2"></i>
+                            Pending Approvals
+                        </h3>
+                        <div id="pendingVerificationsList" class="space-y-3">
+                            <!-- Pending machines will be inserted here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bookings Section -->
+                <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">
+                        <i class="fas fa-calendar-check text-purple-500 mr-2"></i>
+                        My Bookings
+                    </h3>
+                    <div id="bookingsList" class="space-y-4">
+                        <!-- Bookings will be inserted here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Add similar modals for booking and machine management) -->
+    
+<script>
+const API_BASE = 'http://localhost:5001/api';
+let currentUser = null;
+
+// Initialize Dashboard
+const initDashboard = async () => {
+    currentUser = JSON.parse(localStorage.getItem('user'));
+    if (!currentUser || !localStorage.getItem('token')) {
+        window.location.href = '/login.html';
+        return;
+    }
+
+    document.getElementById('userRole').textContent = currentUser.role.toUpperCase();
+    
+    // Load role-specific sections
+    if (currentUser.role === 'owner') {
+        document.getElementById('ownerSection').classList.remove('hidden');
+        loadOwnerMachines();
+    }
+    if (currentUser.role === 'admin') {
+        document.getElementById('adminSection').classList.remove('hidden');
+        loadPendingMachines();
+    }
+
+    loadMachines();
+    loadUserBookings();
+
+    // Event listeners
+    document.getElementById('searchForm').addEventListener('submit', handleSearch);
+};
+
+// Machine Operations
+const loadMachines = async () => {
+    try {
+        const res = await fetch(`${API_BASE}/machines`);
+        const machines = await res.json();
+        renderMachines(machines.filter(m => m.isAvailable));
+    } catch (error) {
+        showError('Failed to load machines');
+    }
+};
+
+const renderMachines = (machines) => {
+    const container = document.getElementById('machinesList');
+    container.innerHTML = machines.map(machine => `
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 card-hover">
+            <div class="flex items-start justify-between mb-3">
+                <div>
+                    <h4 class="font-semibold text-lg">${machine.name}</h4>
+                    <p class="text-gray-500 text-sm">${machine.type}</p>
+                </div>
+                <span class="flex items-center text-sm ${machine.isAvailable ? 'text-green-600' : 'text-red-600'}">
+                    <span class="status-dot ${machine.isAvailable ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    ${machine.isAvailable ? 'Available' : 'Booked'}
+                </span>
+            </div>
+            <div class="space-y-2 text-sm">
+                <p class="text-gray-600">📍 ${machine.location}</p>
+                <p class="text-blue-600 font-medium">₹${machine.rentalFeePerHour}/hour</p>
+            </div>
+            <button onclick="openBookingModal('${machine._id}')" 
+                class="w-full mt-4 bg-blue-100 hover:bg-blue-200 text-blue-600 px-4 py-2 rounded-lg transition-colors">
+                Book Equipment
+            </button>
+        </div>
+    `).join('');
+};
+
+// Booking Operations
+const openBookingModal = (machineId) => {
+    // Implement booking modal logic
+};
+
+const loadUserBookings = async () => {
+    try {
+        const res = await fetch(`${API_BASE}/bookings/user`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        const bookings = await res.json();
+        renderBookings(bookings);
+    } catch (error) {
+        showError('Failed to load bookings');
+    }
+};
+
+const renderBookings = (bookings) => {
+    const container = document.getElementById('bookingsList');
+    container.innerHTML = bookings.map(booking => `
+        <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <h4 class="font-medium">${booking.machine.name}</h4>
+                    <p class="text-sm text-gray-500">${booking.hours} hours</p>
+                </div>
+                <span class="px-2 py-1 rounded-full text-sm ${getStatusStyle(booking.status)}">
+                    ${booking.status}
+                </span>
+            </div>
+            <div class="flex justify-between items-center">
+                <p class="text-sm font-medium">₹${booking.totalCost}</p>
+                ${booking.status === 'confirmed' ? `
+                    <button onclick="cancelBooking('${booking._id}')" 
+                        class="text-red-600 hover:text-red-700 text-sm">
+                        Cancel
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+};
+
+// Helper functions
+const getStatusStyle = (status) => {
+    switch (status.toLowerCase()) {
+        case 'confirmed': return 'bg-green-100 text-green-700';
+        case 'pending': return 'bg-yellow-100 text-yellow-700';
+        default: return 'bg-gray-100 text-gray-700';
+    }
+};
+
+const showError = (message) => {
+    // Implement toast notification
+    console.error(message);
+};
+
+// Initialize the dashboard
+document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+</body>
+</html>

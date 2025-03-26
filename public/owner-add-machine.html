@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Machine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6">Add Machine</h1>
+  <form id="add-machine-form" enctype="multipart/form-data" class="bg-white p-4 rounded shadow max-w-md">
+    <input
+      id="name"
+      type="text"
+      placeholder="Name"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="rentalFeePerHour"
+      type="number"
+      placeholder="Rental Fee Per Hour"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="location"
+      type="text"
+      placeholder="Location"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="regNo"
+      type="text"
+      placeholder="Registration Number"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <select id="type" class="p-2 border rounded w-full mb-4">
+      <option value="">Select Type</option>
+      <option value="agriculture">Agriculture</option>
+      <option value="construction">Construction</option>
+      <option value="commercial">Commercial</option>
+    </select>
+    <input
+      id="images"
+      type="file"
+      multiple
+      accept="image/*"
+      class="mb-4"
+    />
+    <button
+      type="submit"
+      class="bg-blue-500 text-white p-2 rounded w-full"
+    >
+      Add Machine
+    </button>
+  </form>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    document.getElementById("add-machine-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("name", document.getElementById("name").value);
+      formData.append("rentalFeePerHour", document.getElementById("rentalFeePerHour").value);
+      formData.append("location", document.getElementById("location").value);
+      formData.append("regNo", document.getElementById("regNo").value);
+      formData.append("type", document.getElementById("type").value);
+
+      const files = document.getElementById("images").files;
+      for (let i = 0; i < files.length; i++) {
+        formData.append("images", files[i]);
+      }
+
+      try {
+        const spinner = utils.showLoading("add-machine-form");
+        const response = await fetch("http://localhost:5001/api/machines", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        });
+
+        utils.hideLoading(spinner);
+
+        if (response.ok) {
+          utils.showToast("Machine added successfully!", "success");
+          setTimeout(() => {
+            window.location.href = "/owner-dashboard.html";
+          }, 1000);
+        } else {
+          const result = await response.json();
+          utils.showToast(result.error || "Failed to add machine", "error");
+        }
+      } catch (error) {
+        utils.hideLoading(spinner);
+        utils.showToast("Error: " + error.message, "error");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Machine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6">Edit Machine</h1>
+  <form id="edit-machine-form" class="bg-white p-4 rounded shadow max-w-md">
+    <input
+      id="name"
+      type="text"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="rentalFeePerHour"
+      type="number"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="location"
+      type="text"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <input
+      id="regNo"
+      type="text"
+      class="p-2 border rounded w-full mb-4"
+    />
+    <select id="type" class="p-2 border rounded w-full mb-4">
+      <option value="agriculture">Agriculture</option>
+      <option value="construction">Construction</option>
+      <option value="commercial">Commercial</option>
+    </select>
+    <button
+      type="submit"
+      class="bg-yellow-500 text-white p-2 rounded w-full"
+    >
+      Update Machine
+    </button>
+  </form>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const machineId = urlParams.get("machineId");
+
+    fetch(`/api/machines/${machineId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => res.json())
+      .then((machine) => {
+        document.getElementById("name").value = machine.name;
+        document.getElementById("rentalFeePerHour").value = machine.rentalFeePerHour;
+        document.getElementById("location").value = machine.location;
+        document.getElementById("regNo").value = machine.regNo;
+        document.getElementById("type").value = machine.type;
+      });
+
+    document.getElementById("edit-machine-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const data = {
+        name: document.getElementById("name").value,
+        rentalFeePerHour: document.getElementById("rentalFeePerHour").value,
+        location: document.getElementById("location").value,
+        regNo: document.getElementById("regNo").value,
+        type: document.getElementById("type").value,
+      };
+
+      fetch(`/api/machines/${machineId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(data),
+      }).then(() => (window.location.href = "/owner/dashboard"));
+    });
+  </script>
+</body>
+</html>

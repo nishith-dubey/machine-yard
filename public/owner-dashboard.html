@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Owner Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-gray-100 font-sans">
+  <div class="container mx-auto p-6">
+    <h1 class="text-4xl font-bold text-gray-800 mb-8 text-center">Owner Dashboard</h1>
+
+    <!-- Machines Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-gray-700">My Machines</h2>
+        <button
+          onclick="window.location.href='/owner-add-machine.html'"
+          class="bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-200 flex items-center gap-2"
+        >
+          <i class="fas fa-plus"></i> Add Machine
+        </button>
+      </div>
+      <div id="machines" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- Booking Requests Section -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-4">Booking Requests</h2>
+      <div id="bookings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    injectNavbar();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      utils.showToast("Please log in to view your dashboard", "error");
+      setTimeout(() => window.location.href = "/login.html", 2000);
+    }
+
+    function fetchMachines() {
+      fetch("http://localhost:5001/api/machines1/owner1", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to fetch machines');
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          const machinesDiv = document.getElementById("machines");
+          machinesDiv.innerHTML = data.length ? data.map((machine) => `
+            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">${machine.name}</h3>
+              ${machine.images && machine.images.length > 0 ? `
+                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-md mb-4">
+              ` : '<p class="text-gray-500 italic mb-4">No image available</p>'}
+              <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Location: ${machine.location}</p>
+              <p class="text-gray-600"><i class="fas fa-tools mr-2"></i>Type: ${machine.type}</p>
+              <p class="text-gray-600"><i class="fas fa-dollar-sign mr-2"></i>Rate: ${utils.formatCurrency(machine.rentalFeePerHour)}/hr</p>
+              <p class="text-gray-600"><i class="fas fa-star mr-2 text-yellow-400"></i>Rating: ${utils.getRatingStars(machine.rating)}</p>
+              <p class="text-gray-600"><i class="fas fa-check-circle mr-2"></i>Verified: ${machine.isVerified ? "Yes" : "No"}</p>
+              <p class="text-gray-600"><i class="fas fa-clock mr-2"></i>Available: ${machine.isAvailable ? "Yes" : "No"}</p>
+              <p class="text-gray-600"><i class="fas fa-id-card mr-2"></i>Reg No: ${machine.regNo}</p>
+              <div class="mt-4 flex gap-2">
+                <button
+                  onclick="window.location.href='/owner-edit-machine.html?machineId=${machine._id}'"
+                  class="bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600 transition duration-200 flex-1 flex items-center justify-center gap-2"
+                >
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button
+                  onclick="deleteMachine('${machine._id}')"
+                  class="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition duration-200 flex-1 flex items-center justify-center gap-2"
+                >
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </div>
+            </div>
+          `).join("") : '<p class="text-center text-gray-500 col-span-full">No machines found.</p>';
+        })
+        .catch((err) => {
+          console.error("Fetch machines error:", err);
+          utils.showToast(`Error fetching machines: ${err.message}`, "error");
+        });
+    }
+
+    function fetchBookings() {
+      fetch("http://localhost:5001/api/bookings/owner", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to fetch bookings');
+            });
+          }
+          return res.json();
+        })
+        .then((data) => {
+          const bookingsDiv = document.getElementById("bookings");
+          bookingsDiv.innerHTML = data.length ? data.map((booking) => `
+            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">${booking.machine.name}</h3>
+              ${booking.machine.images && booking.machine.images.length > 0 ? `
+                <img src="${booking.machine.images[0]}" alt="${booking.machine.name}" class="w-full h-32 object-cover rounded-md mb-4">
+              ` : '<p class="text-gray-500 italic mb-4">No image available</p>'}
+              <p class="text-gray-600"><i class="fas fa-clock mr-2"></i>Hours: ${booking.hours}</p>
+              <p class="text-gray-600"><i class="fas fa-dollar-sign mr-2"></i>Total Cost: ${utils.formatCurrency(booking.totalCost)}</p>
+              <p class="text-gray-600"><i class="fas fa-calendar-alt mr-2"></i>Start: ${new Date(booking.startTime).toLocaleString()}</p>
+              <p class="text-gray-600"><i class="fas fa-calendar-check mr-2"></i>End: ${new Date(booking.endTime).toLocaleString()}</p>
+              <p class="text-gray-600"><i class="fas fa-info-circle mr-2"></i>Status: ${booking.ownerVerified}${booking.isCancelled ? " (Cancelled)" : ""}</p>
+              ${booking.ownerVerified === "pending" ? `
+                <div class="mt-4 flex gap-2">
+                  <button
+                    onclick="verifyBooking('${booking._id}', 'yes')"
+                    class="bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition duration-200 flex-1 flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-check"></i> Approve
+                  </button>
+                  <button
+                    onclick="verifyBooking('${booking._id}', 'no')"
+                    class="bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition duration-200 flex-1 flex items-center justify-center gap-2"
+                  >
+                    <i class="fas fa-times"></i> Reject
+                  </button>
+                </div>
+              ` : ""}
+            </div>
+          `).join("") : '<p class="text-center text-gray-500 col-span-full">No booking requests found.</p>';
+        })
+        .catch((err) => {
+          console.error("Fetch bookings error:", err);
+          utils.showToast(`Error fetching bookings: ${err.message}`, "error");
+        });
+    }
+
+    function deleteMachine(id) {
+      fetch(`http://localhost:5001/api/machines/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to delete machine');
+            });
+          }
+          utils.showToast('Machine deleted successfully', 'success');
+          fetchMachines();
+        })
+        .catch((err) => {
+          console.error('Delete machine error:', err);
+          utils.showToast(`Error deleting machine: ${err.message}`, 'error');
+        });
+    }
+
+    function verifyBooking(id, status) {
+      fetch(`http://localhost:5001/api/bookings/verify/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status })
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to verify booking');
+            });
+          }
+          utils.showToast(`Booking ${status === 'yes' ? 'approved' : 'rejected'} successfully`, 'success');
+          fetchBookings();
+        })
+        .catch((err) => {
+          console.error('Verify booking error:', err);
+          utils.showToast(`Error verifying booking: ${err.message}`, 'error');
+        });
+    }
+
+    if (token) {
+      fetchMachines();
+      fetchBookings();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Machine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen bg-gray-100 font-sans">
+  <div class="container mx-auto p-6">
+    <h1 id="title" class="text-4xl font-bold text-gray-800 mb-8 text-center">Book Machine</h1>
+
+    <!-- Booking Form -->
+    <div id="booking-form" class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto"></div>
+  </div>
+
+  <script src="/js/utils.js"></script>
+  <script>
+    injectNavbar();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      utils.showToast("Please log in to book a machine", "error");
+      setTimeout(() => window.location.href = "/login.html", 2000);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const machineId = urlParams.get("machineId");
+
+    if (!machineId) {
+      utils.showToast("No machine selected", "error");
+      setTimeout(() => window.location.href = "/user-dashboard.html", 2000);
+    }
+
+    function fetchMachineDetails() {
+      fetch(`http://localhost:5001/api/machines/${machineId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to fetch machine details');
+            });
+          }
+          return res.json();
+        })
+        .then((machine) => {
+          document.getElementById("title").textContent = `Book ${machine.name}`;
+          document.getElementById("booking-form").innerHTML = `
+            <div class="space-y-6">
+              ${machine.images && machine.images.length > 0 ? `
+                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-md shadow-sm">
+              ` : '<p class="text-gray-500 italic text-center">No image available</p>'}
+              <div class="text-gray-700">
+                <p><i class="fas fa-tools mr-2 text-blue-500"></i>Type: ${machine.type}</p>
+                <p><i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Location: ${machine.location}</p>
+                <p><i class="fas fa-dollar-sign mr-2 text-green-500"></i>Rate: ${utils.formatCurrency(machine.rentalFeePerHour)}/hr</p>
+              </div>
+              <div>
+                <label for="startTime" class="block text-gray-700 font-medium mb-1"><i class="fas fa-calendar-alt mr-2"></i>Start Time</label>
+                <input
+                  id="startTime"
+                  type="datetime-local"
+                  class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+                  min="${new Date().toISOString().slice(0, 16)}" <!-- Prevents past dates --
+                />
+              </div>
+              <div>
+                <label for="hours" class="block text-gray-700 font-medium mb-1"><i class="fas fa-clock mr-2"></i>Hours</label>
+                <input
+                  id="hours"
+                  type="number"
+                  min="1"
+                  placeholder="Enter hours (e.g., 2)"
+                  class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+                />
+              </div>
+              <button
+                onclick="handleBooking()"
+                class="w-full bg-green-600 text-white p-3 rounded-md hover:bg-green-700 transition duration-200 flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-calendar-check"></i> Book Now
+              </button>
+            </div>
+          `;
+        })
+        .catch((err) => {
+          console.error('Fetch machine error:', err);
+          utils.showToast(`Error loading machine: ${err.message}`, 'error');
+          setTimeout(() => window.location.href = "/user-dashboard.html", 2000);
+        });
+    }
+
+    function handleBooking() {
+      const hours = document.getElementById("hours").value;
+      const startTime = document.getElementById("startTime").value;
+
+      if (!hours || hours <= 0) {
+        utils.showToast("Please enter a valid number of hours", "error");
+        return;
+      }
+      if (!startTime) {
+        utils.showToast("Please select a start time", "error");
+        return;
+      }
+
+      const bookingData = {
+        machineId,
+        hours: parseInt(hours),
+        startTime: new Date(startTime).toISOString()
+      };
+
+      fetch("http://localhost:5001/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(bookingData)
+      })
+        .then((res) => {
+          if (!res.ok) {
+            return res.json().then((err) => {
+              throw new Error(err.error || 'Failed to book machine');
+            });
+          }
+          return res.json();
+        })
+        .then((booking) => {
+          utils.showToast('Booking created successfully', 'success');
+          setTimeout(() => window.location.href = "/user-dashboard.html", 1000);
+        })
+        .catch((err) => {
+          console.error('Booking error:', err);
+          utils.showToast(`Error booking machine: ${err.message}`, 'error');
+        });
+    }
+
+    if (token && machineId) {
+      fetchMachineDetails();
+    }
+  </script>
+</body>
+</html>

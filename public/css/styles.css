@@ -1,0 +1,78 @@
+/* Custom Styles */
+*{
+    font-family: 'Raleway', sans-serif;
+  }
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    z-index: 50;
+    animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.toast-success {
+    background-color: #4ade80;
+    color: white;
+}
+
+.toast-error {
+    background-color: #ef4444;
+    color: white;
+}
+
+.machine-card {
+    transition: transform 0.2s;
+}
+
+.machine-card:hover {
+    transform: translateY(-5px);
+}
+
+.rating-stars {
+    color: #fbbf24;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+}
+
+.calendar-day.available {
+    background-color: #dcfce7;
+}
+
+.calendar-day.unavailable {
+    background-color: #fee2e2;
+    cursor: not-allowed;
+} 

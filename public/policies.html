@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Policies - Machine Yard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+    <style>
+        .policy-section {
+            @apply bg-white p-6 rounded-lg shadow-md mb-6 border border-gray-200;
+        }
+        .policy-title {
+            @apply text-2xl font-bold text-[#3c532f] mb-4;
+        }
+        .policy-text {
+            @apply text-gray-700 leading-relaxed;
+        }
+    </style>
+</head>
+<body class="bg-[#fcfaf8] min-h-screen">
+    <!-- Navbar Placeholder -->
+    <div id="navbar"></div>
+
+    <!-- Policies Content -->
+    <div class="container mx-auto px-6 py-12 max-w-4xl">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <button onclick="window.history.back()" class="flex items-center text-[#3c532f] font-semibold hover:text-[#2a3b21] transition duration-200">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Previous Page
+            </button>
+        </div>
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-[#3c532f] mb-4">Our Policies</h1>
+            <p class="text-lg text-gray-600">Clear guidelines for a seamless experience at Machine Yard, for both renters and owners.</p>
+        </header>
+
+        <!-- General Policies -->
+        <section class="policy-section">
+            <h2 class="policy-title">General Policies</h2>
+            <p class="policy-text">
+                At Machine Yard, we aim to create a fair and transparent platform for renting and providing heavy machinery. These policies apply to all users—whether you're renting a machine or listing one for rent. Please read carefully to understand your rights and responsibilities.
+            </p>
+        </section>
+
+        <!-- Rental Terms -->
+        <section class="policy-section">
+            <h2 class="policy-title">Rental Terms</h2>
+            <ul class="policy-text list-disc list-inside space-y-2">
+                <li><strong>For Renters:</strong> Machines are rented on a daily, weekly, or monthly basis, as specified by the owner. Minimum rental periods may apply.</li>
+                <li><strong>For Owners:</strong> You must clearly state availability, rental duration, and any additional terms (e.g., fuel included or excluded) when listing your machine.</li>
+                <li>Rental agreements are finalized upon booking confirmation and payment.</li>
+                <li>Machines must be returned in the same condition as received, barring normal wear and tear.</li>
+            </ul>
+        </section>
+
+        <!-- Payment Policies -->
+        <section class="policy-section">
+            <h2 class="policy-title">Payment Policies</h2>
+            <ul class="policy-text list-disc list-inside space-y-2">
+                <li><strong>For Renters:</strong> Full payment is required upfront via our secure payment gateway. A refundable security deposit may also be charged, depending on the owner's terms.</li>
+                <li><strong>For Owners:</strong> Payments are disbursed to your account within 3-5 business days after the rental period ends, minus a 10% platform fee.</li>
+                <li>All transactions are in [Your Currency, e.g., USD]. Prices include taxes unless otherwise stated.</li>
+                <li>Late returns may incur additional fees, calculated at 1.5x the daily rate.</li>
+            </ul>
+        </section>
+
+        <!-- Cancellation & Refunds -->
+        <section class="policy-section">
+            <h2 class="policy-title">Cancellation & Refunds</h2>
+            <ul class="policy-text list-disc list-inside space-y-2">
+                <li><strong>For Renters:</strong> Cancellations made 48 hours before the rental start date are fully refundable. Within 48 hours, a 50% fee applies. No refunds for no-shows.</li>
+                <li><strong>For Owners:</strong> You may cancel a booking up to 72 hours before the start date without penalty. Late cancellations may affect your account standing.</li>
+                <li>Refunds are processed within 7-10 business days.</li>
+            </ul>
+        </section>
+
+        <!-- Responsibilities & Liability -->
+        <section class="policy-section">
+            <h2 class="policy-title">Responsibilities & Liability</h2>
+            <ul class="policy-text list-disc list-inside space-y-2">
+                <li><strong>For Renters:</strong> You are responsible for operating the machine safely and as intended. Any damage beyond normal wear must be reported and may be deducted from your security deposit.</li>
+                <li><strong>For Owners:</strong> You must ensure your machine is in good working condition, fully serviced, and meets safety standards before each rental.</li>
+                <li>Machine Yard is not liable for accidents, injuries, or damages arising from misuse or negligence.</li>
+                <li>Insurance is recommended for both parties—renters may opt for our coverage plan at checkout.</li>
+            </ul>
+        </section>
+
+        <!-- Contact Us -->
+        <section class="policy-section text-center">
+            <h2 class="policy-title">Questions?</h2>
+            <p class="policy-text">
+                If anything’s unclear, feel free to reach out to us at 
+                <a href="mailto:support@machineyard.com" class="text-[#3c532f] hover:underline">support@machineyard.com</a> 
+                or call us at <span class="font-semibold">+1-800-MACH-YARD</span>.
+            </p>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#3c532f] text-white py-6">
+        <div class="container mx-auto text-center">
+            <p>© 2025 Machine Yard. All rights reserved.</p>
+            <div class="mt-2">
+                <a href="/our-policies.html" class="text-gray-200 hover:text-white mx-2">Policies</a>
+                <a href="/terms.html" class="text-gray-200 hover:text-white mx-2">Terms</a>
+                <a href="/contact.html" class="text-gray-200 hover:text-white mx-2">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="utils.js"></script>
+    <script>
+        injectNavbar();
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNavbar();
+        });
+    </script>
+</body>
+</html>
