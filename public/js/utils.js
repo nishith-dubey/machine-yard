@@ -181,7 +181,7 @@ function showToast(message, type) {
 }
 
 function formatCurrency(amount) {
-  return `$${amount.toFixed(2)}`;
+  return `₹${amount.toFixed(2)}`;
 }
 
 function getRatingStars(rating) {

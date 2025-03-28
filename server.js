@@ -56,7 +56,8 @@ mongoose.connect(MONGO_URI)
       name: { type: String, required: true },
       email: { type: String, required: true, unique: true },
       password: { type: String, required: true },
-      role: { type: String, enum: ['user', 'owner', 'admin'], default: 'user' }
+      role: { type: String, enum: ['user', 'owner', 'admin'], default: 'user' },
+      profilePic: { type: String } 
     });
     const User = mongoose.model('User', userSchema);
 
@@ -192,7 +193,7 @@ mongoose.connect(MONGO_URI)
     });
 
     // Verify Machine (Admin only)
-    app.put('/api/machines/verify/:id', authenticateJWT, async (req, res) => {
+    app.put('/api/machines1/verify1/:id', authenticateJWT, async (req, res) => {
       if (req.user.role !== 'admin') return res.status(403).json({ error: 'Only admins can verify machines' });
       try {
         const machine = await Machine.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
@@ -428,6 +429,48 @@ mongoose.connect(MONGO_URI)
       }
     });
 
+    // GET Profile
+app.get('/api/auth/profile', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    console.error('Profile fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+// PUT Profile (Handles both name/email updates and profile picture upload)
+app.put('/api/auth/profile', authenticateJWT, upload.single('profilePic'), async (req, res) => {
+  try {
+    const updates = {};
+    if (req.body.name) updates.name = req.body.name;
+    if (req.body.email) {
+      const emailExists = await User.findOne({ email: req.body.email, _id: { $ne: req.user.id } });
+      if (emailExists) return res.status(400).json({ error: 'Email already in use' });
+      updates.email = req.body.email;
+    }
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        cloudinary.v2.uploader.upload_stream({ folder: 'machine_yard_profiles' }, (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }).end(req.file.buffer);
+      });
+      updates.profilePic = result.secure_url;
+    }
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No updates provided' });
+    }
+    const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
     // Static files AFTER API routes
     app.use(express.static(join(__dirname, 'public')));
 

@@ -34,7 +34,7 @@
     }
 
     function fetchMachineDetails() {
-      fetch(`http://localhost:5001/api/machines/${machineId}`, {
+      fetch(`https://machine-yard.vercel.app/api/machines/${machineId}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
         .then((res) => {

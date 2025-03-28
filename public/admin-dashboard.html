@@ -86,7 +86,7 @@
     }
 
     function verifyMachine(id) {
-      fetch(`http://localhost:5001/api/machines/verify/${id}`, {
+      fetch(`https://machine-yard.vercel.app/api/machines1/verify1/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +115,7 @@
     }
 
     function viewImages(machineId, machineName) {
-      fetch(`http://localhost:5001/api/machines/${machineId}`, {
+      fetch(`https://machine-yard.vercel.app/api/machines/${machineId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {

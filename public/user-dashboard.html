@@ -1,236 +1,478 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - Machine Yard</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Machine Yard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Framer Motion -->
+    <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.min.js"></script>
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-        /* Smooth scroll behavior */
-        html {
-            scroll-behavior: smooth;
+      /* Custom theme colors */
+      :root {
+        --background-light: #fcfaf8;
+        --background-dark: #2a431c;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background-color: var(--background-light);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
-        /* Card hover effect */
-        .card-hover {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        /* Custom button hover */
-        .btn-hover {
-            transition: background-color 0.2s ease, transform 0.2s ease;
-        }
-        .btn-hover:hover {
-            transform: scale(1.05);
-        }
+      }
+
+      .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      .card-hover {
+        transition: all 0.3s ease;
+      }
     </style>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 font-sans antialiased">
-    <!-- Navbar Placeholder -->
+    <script>
+      // Tailwind configuration to use custom colors
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "custom-light": "#fcfaf8",
+              "custom-dark": "#2a431c",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen bg-custom-light text-custom-dark font-sans antialiased"
+  >
+    <!-- Navbar Placeholder (preserved from original) -->
     <div id="navbar"></div>
-
-    <div class="container mx-auto px-6 py-12">
-        <!-- Header -->
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-10 text-center tracking-tight">
-            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-green-600">User Dashboard</span>
-        </h1>
-
-        <!-- Search Section -->
-        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
-            <div class="flex flex-col sm:flex-row items-center gap-4">
-                <input
-                    id="location"
-                    type="text"
-                    placeholder="Search by location..."
-                    class="w-full sm:w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition duration-150 placeholder-gray-400"
-                />
-                <select
-                    id="type"
-                    class="w-full sm:w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition duration-150 text-gray-600"
-                >
-                    <option value="">Select Type</option>
-                    <option value="agriculture">Agriculture</option>
-                    <option value="construction">Construction</option>
-                    <option value="commercial">Commercial</option>
-                </select>
-                <button
-                    onclick="fetchMachines()"
-                    class="w-full sm:w-auto bg-blue-600 text-white p-3 rounded-lg btn-hover flex items-center justify-center gap-2 text-sm font-medium"
-                >
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </div>
+    <style>
+        @keyframes moveHorizon {
+          0% { transform: translateX(10vw); }
+          50% { transform: translateX(80vw); }
+          100% { transform: translateX(10vw); }
+        }
+      </style>
+      
+      <div class=" z-10 pointer-events-none overflow-hidden">
+        <!-- Machine 1 (starts immediately) -->
+        <div class="absolute z-10 top-20 animate-[moveHorizon_15s_ease_infinite] opacity-40">
+          <img src="construction-2027213.svg" alt="" class="w-32">
         </div>
+      </div>
+    <div class="container mx-auto px-6 py-12 z-50">
+      <!-- Header -->
+      <div class="text-center z-50 mb-12">
+        <h1 class="text-5xl font-extrabold z-50 text-custom-dark mb-4">
+          Machine Yard
+        </h1>
+        <p class="text-xl text-custom-dark/70 max-w-2xl mx-auto">
+          Discover, Book, and Manage Machines with Ease
+        </p>
+      </div>
 
-        <!-- Machines List -->
-        <div id="machines" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
+      <!-- Search Section -->
+      <div
+        class="bg-white p-8 rounded-2xl z-50 shadow-lg mb-12 animate-fade-in border border-custom-dark/10"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            id="location"
+            type="text"
+            placeholder="Search by location..."
+            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 text-green-500 placeholder:text-gray-700"
+          />
+          <select
+            id="type"
+            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 placeholder:text-gray-700"
+          >
+            <option value="">Select Machine Type</option>
+            <option value="agriculture">Agriculture</option>
+            <option value="construction">Construction</option>
+            <option value="commercial">Commercial</option>
+          </select>
+          <button
+            onclick="fetchMachines()"
+            class="w-full bg-custom-dark text-custom-light p-4 rounded-xl hover:opacity-90 transition duration-300 flex items-center justify-center gap-3"
+          >
+            <i class="fas fa-search"></i> Search Machines
+          </button>
+        </div>
+      </div>
 
-        <!-- My Bookings -->
-        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center tracking-tight">My Bookings</h2>
-        <div id="bookings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <!-- Machines Section -->
+      <section class="mb-16">
+        <h2 class="text-3xl font-bold text-center text-custom-dark mb-8">
+          Available Machines
+        </h2>
+        <div
+          id="machines"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        ></div>
+      </section>
+
+      <!-- Bookings Section -->
+      <section>
+        <h2 class="text-3xl font-bold text-center text-custom-dark mb-8">
+          My Bookings
+        </h2>
+        <div
+          id="bookings"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        ></div>
+      </section>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6 mt-12">
-        <div class="container mx-auto text-center">
-            <p class="text-sm">&copy; 2025 Machine Yard. All rights reserved.</p>
-        </div>
+    <footer class="bg-custom-dark text-custom-light py-8">
+      <div class="container mx-auto text-center">
+        <p class="text-sm">&copy; 2025 Machine Yard. Empowering Your Work.</p>
+      </div>
     </footer>
 
     <script src="/js/utils.js"></script>
     <script>
-        // Assuming injectNavbar() is defined in utils.js
-        injectNavbar();
+      // Assuming injectNavbar() is defined in utils.js
+      injectNavbar();
 
-        const token = localStorage.getItem("token");
-        if (!token) {
-            utils.showToast("Please log in to view your dashboard", "error");
-            setTimeout(() => window.location.href = "/login.html", 2000);
-        }
+      const token = localStorage.getItem("token");
+      if (!token) {
+        utils.showToast("Please log in to view your dashboard", "error");
+        setTimeout(() => (window.location.href = "/login.html"), 2000);
+      }
 
-        function fetchMachines() {
-            const location = document.getElementById("location").value;
-            const type = document.getElementById("type").value;
-            fetch(`http://localhost:5001/api/machines?location=${location}&type=${type}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-            })
-                .then((res) => {
-                    if (!res.ok) {
-                        return res.json().then((err) => {
-                            throw new Error(err.error || 'Failed to fetch machines');
-                        });
-                    }
-                    return res.json();
-                })
-                .then((data) => {
-                    const machinesDiv = document.getElementById("machines");
-                    machinesDiv.innerHTML = data.length ? data.map((machine) => `
+      // Updated star rating function
+      function createStarRating(machineId, currentRating) {
+        return `
+    <div class="flex items-center space-x-1">
+        <span class="text-sm text-gray-600 mr-2">Rating:</span>
+        ${[1, 2, 3, 4, 5]
+          .map(
+            (star) => `
+            <button 
+                onclick="rateMachine('${machineId}', ${star})" 
+                class="star-rating-btn transition-colors duration-200 ${
+                  star <= currentRating ? "text-yellow-400" : "text-gray-300"
+                } hover:text-yellow-500"
+            >
+                <i class="fas fa-star"></i>
+            </button>
+        `
+          )
+          .join("")}
+        <span class="text-sm text-gray-500 ml-2">(${currentRating.toFixed(
+          1
+        )})</span>
+    </div>
+    `;
+      }
+
+      // Enhanced machine card generation
+      function generateMachineCard(machine) {
+        const typeColors = {
+          excavator: "bg-orange-500",
+          loader: "bg-blue-600",
+          bulldozer: "bg-green-600",
+          crane: "bg-purple-600",
+          default: "bg-custom-dark",
+        };
+
+        return `
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative overflow-hidden group">
+        <!-- Top Badge -->
+        <div class="absolute top-0 right-0 ${
+          typeColors[machine.type] || typeColors.default
+        } text-white px-3 py-1 rounded-bl-lg text-xs font-semibold z-10">
+            ${machine.type.charAt(0).toUpperCase() + machine.type.slice(1)}
+        </div>
+
+        <!-- Machine Image -->
+        <div class="mb-6 relative overflow-hidden rounded-xl aspect-video">
+            ${
+              machine.images?.length > 0
+                ? `
+                <img 
+                    src="${machine.images[0]}" 
+                    alt="${machine.name}" 
+                    loading="lazy"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                >
+                <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                </div>
+            `
+                : `
+                <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center text-gray-500">
+                    <i class="fas fa-camera text-3xl mb-2"></i>
+                    <span class="italic text-sm">No images available</span>
+                </div>
+            `
+            }
+        </div>
+
+        <!-- Machine Details -->
+        <div class="space-y-3">
+            <h2 class="text-xl font-bold text-custom-dark truncate" title="${
+              machine.name
+            }">
+    ${machine.name.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}
+</h2>
+
+            <!-- Location & Pricing -->
+            <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center space-x-2 text-gray-600 truncate" title="${
+                  machine.location
+                }">
+                    <i class="fas fa-map-marker-alt text-custom-dark"></i>
+                    <span>${machine.location.toUpperCase()}</span>
+                </div>
+                <div class="bg-custom-dark/10 px-3 py-1 rounded-full">
+                    <span class="font-semibold text-custom-dark">
+                        ${utils.formatCurrency(machine.rentalFeePerHour)}
+                    </span>
+                    <span class="text-gray-500 text-sm">/HR</span>
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="my-4">
+                ${createStarRating(machine._id, machine.rating)}
+                ${
+                  machine.reviews
+                    ? `
+                    <span class="ml-2 text-sm text-gray-600">(${machine.reviews})</span>
+                `
+                    : ""
+                }
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col space-y-3">
+                ${
+                  machine.isAvailable
+                    ? `
+                    <button
+                        onclick="window.location.href='/user-booking.html?machineId=${machine._id}'"
+                        class="w-full bg-custom-dark hover:bg-custom-dark/90 text-white p-3 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                    >
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Book Now</span>
+                    </button>
+                `
+                    : `
+                    <div class="w-full bg-red-100 text-red-600 p-3 rounded-lg flex items-center justify-center space-x-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Currently Unavailable</span>
+                    </div>
+                `
+                }
+                <button class="text-custom-dark/80 hover:text-custom-dark flex items-center justify-center space-x-1 text-sm transition-colors"
+                    aria-label="View details">
+                    <span>Technical Specifications</span>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+      }
+
+      // Updated rateMachine function to handle star rating
+      function rateMachine(machineId, rating) {
+        fetch(
+          `https://machine-yard.vercel.app/api/machines/${machineId}/rate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ rating: parseInt(rating) }),
+          }
+        )
+          .then((res) => {
+            if (!res.ok) {
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to rate machine");
+              });
+            }
+            utils.showToast("Rating submitted successfully", "success");
+            fetchMachines();
+          })
+          .catch((err) => {
+            console.error("Rate machine error:", err);
+            utils.showToast(`Error rating machine: ${err.message}`, "error");
+          });
+      }
+
+      // Update the fetchMachines function to use the new card generation
+      function fetchMachines() {
+        const location = document.getElementById("location").value;
+        const type = document.getElementById("type").value;
+        fetch(
+          `https://machine-yard.vercel.app/api/machines?location=${location}&type=${type}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        )
+          .then((res) => {
+            if (!res.ok) {
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to fetch machines");
+              });
+            }
+            return res.json();
+          })
+          .then((data) => {
+            const machinesDiv = document.getElementById("machines");
+            machinesDiv.innerHTML = data.length
+              ? data.map(generateMachineCard).join("")
+              : '<p class="text-center text-gray-500 col-span-full text-lg">No machines found matching your criteria.</p>';
+          })
+          .catch((err) => {
+            console.error("Fetch machines error:", err);
+            utils.showToast(`Error fetching machines: ${err.message}`, "error");
+          });
+      }
+
+      function fetchBookings() {
+        fetch("https://machine-yard.vercel.app/api/bookings/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((res) => {
+            if (!res.ok) {
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to fetch bookings");
+              });
+            }
+            return res.json();
+          })
+          .then((data) => {
+            const bookingsDiv = document.getElementById("bookings");
+            bookingsDiv.innerHTML = data.length
+              ? data
+                  .map(
+                    (booking) => `
                         <div class="bg-white p-6 rounded-xl shadow-md card-hover">
-                            <h2 class="text-xl font-semibold text-gray-800 mb-3">${machine.name}</h2>
-                            ${machine.images && machine.images.length > 0 ? `
-                                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-lg mb-4">
-                            ` : '<p class="text-gray-500 italic mb-4">No image available</p>'}
-                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-map-marker-alt mr-2 text-blue-500"></i>Location: ${machine.location}</p>
-                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-tools mr-2 text-blue-500"></i>Type: ${machine.type}</p>
-                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-dollar-sign mr-2 text-green-500"></i>Rate: ${utils.formatCurrency(machine.rentalFeePerHour)}/hr</p>
-                            <p class="text-gray-600 text-sm mb-3"><i class="fas fa-star mr-2 text-yellow-400"></i>Rating: ${utils.getRatingStars(machine.rating)}</p>
-                            <select onchange="rateMachine('${machine._id}', this.value)" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none transition duration-150">
-                                <option value="">Rate this machine</option>
-                                ${[1, 2, 3, 4, 5].map((r) => `<option value="${r}">${r} Star${r > 1 ? 's' : ''}</option>`).join("")}
-                            </select>
-                            ${machine.isAvailable ? `
-                                <button
-                                    onclick="window.location.href='/user-booking.html?machineId=${machine._id}'"
-                                    class="mt-4 w-full bg-green-600 text-white p-2 rounded-lg btn-hover flex items-center justify-center gap-2 text-sm font-medium"
-                                >
-                                    <i class="fas fa-calendar-check"></i> Book Now
-                                </button>
-                            ` : '<p class="mt-4 text-red-500 font-semibold text-sm"><i class="fas fa-exclamation-circle mr-2"></i>Unavailable</p>'}
-                        </div>
-                    `).join("") : '<p class="text-center text-gray-500 col-span-full text-lg">No machines found matching your criteria.</p>';
-                })
-                .catch((err) => {
-                    console.error('Fetch machines error:', err);
-                    utils.showToast(`Error fetching machines: ${err.message}`, 'error');
-                });
-        }
-
-        function fetchBookings() {
-            fetch("https://machine-yard.vercel.app/api/bookings/user", {
-                headers: { Authorization: `Bearer ${token}` },
-            })
-                .then((res) => {
-                    if (!res.ok) {
-                        return res.json().then((err) => {
-                            throw new Error(err.error || 'Failed to fetch bookings');
-                        });
-                    }
-                    return res.json();
-                })
-                .then((data) => {
-                    const bookingsDiv = document.getElementById("bookings");
-                    bookingsDiv.innerHTML = data.length ? data.map((booking) => `
-                        <div class="bg-white p-6 rounded-xl shadow-md card-hover">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-3">${booking.machine.name}</h3>
-                            ${booking.machine.images && booking.machine.images.length > 0 ? `
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">${
+                              booking.machine.name
+                            }</h3>
+                            ${
+                              booking.machine.images &&
+                              booking.machine.images.length > 0
+                                ? `
                                 <img src="${booking.machine.images[0]}" alt="${booking.machine.name}" class="w-full h-32 object-cover rounded-lg mb-4">
-                            ` : '<p class="text-gray-500 italic mb-4">No image available</p>'}
-                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Hours: ${booking.hours}</p>
-                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-dollar-sign mr-2 text-green-500"></i>Total Cost: ${utils.formatCurrency(booking.totalCost)}</p>
-                            <p class="text-gray-600 text-sm mb-3"><i class="fas fa-info-circle mr-2 text-blue-500"></i>Status: ${booking.ownerVerified}${booking.isCancelled ? " (Cancelled)" : ""}</p>
-                            ${booking.ownerVerified === "yes" && !booking.isCancelled ? `
+                            `
+                                : '<p class="text-gray-500 italic mb-4">No image available</p>'
+                            }
+                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-clock mr-2 text-blue-500"></i>Hours: ${
+                              booking.hours
+                            }</p>
+                            <p class="text-gray-600 text-sm mb-1"><i class="fas fa-dollar-sign mr-2 text-green-500"></i>Total Cost: ${utils.formatCurrency(
+                              booking.totalCost
+                            )}</p>
+                            <p class="text-gray-600 text-sm mb-3"><i class="fas fa-info-circle mr-2 text-blue-500"></i>Status: ${
+                              booking.ownerVerified
+                            }${booking.isCancelled ? " (Cancelled)" : ""}</p>
+                            ${
+                              booking.ownerVerified === "yes" &&
+                              !booking.isCancelled
+                                ? `
                                 <button
                                     onclick="cancelBooking('${booking._id}')"
                                     class="mt-4 w-full bg-red-600 text-white p-2 rounded-lg btn-hover flex items-center justify-center gap-2 text-sm font-medium"
                                 >
                                     <i class="fas fa-times"></i> Cancel Booking
                                 </button>
-                            ` : ""}
+                            `
+                                : ""
+                            }
                         </div>
-                    `).join("") : '<p class="text-center text-gray-500 col-span-full text-lg">You have no bookings yet.</p>';
-                })
-                .catch((err) => {
-                    console.error('Fetch bookings error:', err);
-                    utils.showToast(`Error fetching bookings: ${err.message}`, 'error');
-                });
-        }
+                    `
+                  )
+                  .join("")
+              : '<p class="text-center text-gray-500 col-span-full text-lg">You have no bookings yet.</p>';
+          })
+          .catch((err) => {
+            console.error("Fetch bookings error:", err);
+            utils.showToast(`Error fetching bookings: ${err.message}`, "error");
+          });
+      }
 
-        function cancelBooking(id) {
-            fetch(`http://localhost:5001/api/bookings/cancel/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({})
-            })
-                .then((res) => {
-                    if (!res.ok) {
-                        return res.json().then((err) => {
-                            throw new Error(err.error || 'Failed to cancel booking');
-                        });
-                    }
-                    utils.showToast('Booking cancelled successfully', 'success');
-                    fetchBookings();
-                })
-                .catch((err) => {
-                    console.error('Cancel booking error:', err);
-                    utils.showToast(`Error cancelling booking: ${err.message}`, 'error');
-                });
-        }
-
-        function rateMachine(machineId, rating) {
-            fetch(`http://localhost:5001/api/machines/${machineId}/rate`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ rating: parseInt(rating) }),
-            })
-                .then((res) => {
-                    if (!res.ok) {
-                        return res.json().then((err) => {
-                            throw new Error(err.error || 'Failed to rate machine');
-                        });
-                    }
-                    utils.showToast('Rating submitted successfully', 'success');
-                    fetchMachines();
-                })
-                .catch((err) => {
-                    console.error('Rate machine error:', err);
-                    utils.showToast(`Error rating machine: ${err.message}`, 'error');
-                });
-        }
-
-        if (token) {
-            fetchMachines();
+      function cancelBooking(id) {
+        fetch(`https://machine-yard.vercel.app/api/bookings/cancel/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}),
+        })
+          .then((res) => {
+            if (!res.ok) {
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to cancel booking");
+              });
+            }
+            utils.showToast("Booking cancelled successfully", "success");
             fetchBookings();
-        }
+          })
+          .catch((err) => {
+            console.error("Cancel booking error:", err);
+            utils.showToast(
+              `Error cancelling booking: ${err.message}`,
+              "error"
+            );
+          });
+      }
+
+      function rateMachine(machineId, rating) {
+        fetch(
+          `https://machine-yard.vercel.app/api/machines/${machineId}/rate`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ rating: parseInt(rating) }),
+          }
+        )
+          .then((res) => {
+            if (!res.ok) {
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to rate machine");
+              });
+            }
+            utils.showToast("Rating submitted successfully", "success");
+            fetchMachines();
+          })
+          .catch((err) => {
+            console.error("Rate machine error:", err);
+            utils.showToast(`Error rating machine: ${err.message}`, "error");
+          });
+      }
+
+      if (token) {
+        fetchMachines();
+        fetchBookings();
+      }
     </script>
-</body>
+  </body>
 </html>
