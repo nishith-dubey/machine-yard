@@ -388,6 +388,21 @@ mongoose.connect(MONGO_URI)
       }
     });
 
+    app.get('/api/owners1/:ownerId', authenticateJWT, async (req, res) => {
+      // console.log('first')
+      try {
+          const owner = await User.findById(req.params.ownerId).select('name'); // Assuming `User` is your owner model
+          const email = await User.findById(req.params.ownerId).select('email'); // Assuming `User` is your owner model
+          if (!owner || !email) return res.status(404).json({ error: 'Owner not found' });
+  
+          res.json({owner, email});
+      } catch (error) {
+          console.error('Error fetching owner details:', error);
+          res.status(500).json({ error: 'Failed to fetch owner details' });
+      }
+  });
+  
+
     // Get Owner's Machines
     app.get('/api/machines1/owner1', authenticateJWT, async (req, res) => {
       if (req.user.role !== 'owner') return res.status(403).json({ error: 'Access denied' });
