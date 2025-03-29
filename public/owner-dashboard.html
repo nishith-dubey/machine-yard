@@ -9,9 +9,10 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="min-h-screen bg-[#fcfaf8] font-sans">
-  <div class="container mx-auto p-6">
-    <div class="relative mr-10 gap-10 flex items-center justify-center">
-      <h1 class="text-4xl font-bold text-[#2a431c] mb-8 text-center">Owner Dashboard</h1>
+  
+  <div class="container mx-auto p-6 mt-3">
+    <div class="relative mr-10 gap-12 flex items-center justify-center">
+      <h1 class="text-4xl font-bold text-[#2a431c] mb-8 mr-10 text-center">Machine Yard | Owner</h1>
       <div class="w-16 h-16 rounded-full border-[2px] border-[#2a431c] absolute -top-[10px] right-[220px] hover:scale-105 transition-transform duration-200">
         <a href="/owner-profile.html">
           <img id="dashboard-profile-pic" src="https://via.placeholder.com/150" alt="User Profile" class="w-full h-full object-cover rounded-full">
@@ -19,12 +20,12 @@
       </div>
     </div>
     <!-- Machines Section -->
-    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <div class="bg-white p-6 rounded-lg mb-8">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold text-gray-700">My Machines</h2>
+        <h2 class="text-2xl font-semibold text-gray-700 ">My Machines</h2>
         <button
           onclick="window.location.href='/owner-add-machine.html'"
-          class="bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition duration-200 flex items-center gap-2"
+          class="bg-[#2a431c] text-white p-3 rounded-md hover:bg-green-800 transition duration-200 flex items-center gap-2"
         >
           <i class="fas fa-plus"></i> Add Machine
         </button>
@@ -33,7 +34,7 @@
     </div>
 
     <!-- Booking Requests Section -->
-    <div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="bg-white p-6 rounded-lg">
       <h2 class="text-2xl font-semibold text-gray-700 mb-4">Booking Requests</h2>
       <div id="bookings" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
@@ -85,18 +86,18 @@
         .then((data) => {
           const machinesDiv = document.getElementById("machines");
           machinesDiv.innerHTML = data.length ? data.map((machine) => `
-            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200 border-[1px] border-gray-300">
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">${machine.name}</h3>
+            <div class="bg-white p-6 rounded-lg border-[0.5px] border-gray-200 hover:shadow-lg hover:shadow-[#2a431c]/50 transition duration-200 ">
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">${machine.name.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}</h3>
               ${machine.images && machine.images.length > 0 ? `
-                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-md mb-4">
+                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full hover:scale-[1.03] h-48 object-cover rounded-md mb-4 transition ease duration-300">
               ` : '<p class="text-gray-500 italic mb-4">No image available</p>'}
-              <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Location: ${machine.location}</p>
-              <p class="text-gray-600"><i class="fas fa-tools mr-2"></i>Type: ${machine.type}</p>
-              <p class="text-gray-600"><i class="fas fa-dollar-sign mr-2"></i>Rate: ${utils.formatCurrency(machine.rentalFeePerHour)}/hr</p>
+              <p class="text-gray-600"><i class="fas fa-map-marker-alt mr-2"></i>Location: ${machine.location.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}</p>
+              <p class="text-gray-600"><i class="fas fa-tools mr-2"></i>Type: ${machine.type.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}</p>
+              <p class="text-gray-600"><i class="fas fa-rupee-sign mr-2"></i>Rate: ${utils.formatCurrency(machine.rentalFeePerHour)}/hr</p>
               <p class="text-gray-600"><i class="fas fa-star mr-2 text-yellow-400"></i>Rating: ${utils.getRatingStars(machine.rating)}</p>
               <p class="text-gray-600"><i class="fas fa-check-circle mr-2"></i>Verified: ${machine.isVerified ? "Yes" : "No"}</p>
               <p class="text-gray-600"><i class="fas fa-clock mr-2"></i>Available: ${machine.isAvailable ? "Yes" : "No"}</p>
-              <p class="text-gray-600"><i class="fas fa-id-card mr-2"></i>Reg No: ${machine.regNo}</p>
+              <p class="text-gray-600"><i class="fas fa-id-card mr-2"></i>Reg No: ${machine.regNo.toUpperCase()}</p>
               <div class="mt-4 flex gap-2">
                 <button
                   onclick="window.location.href='/owner-edit-machine.html?machineId=${machine._id}'"

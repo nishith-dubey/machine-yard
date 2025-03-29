@@ -106,8 +106,8 @@ function injectNavbar() {
             <!-- Search and Icons -->
             <div class="flex items-center gap-10 mr-[0.5vh]">
                 <div class="ml-[20vh] md:ml-[10vh] sm:ml-[5vh] hidden md:flex gap-10">
-                <a href="" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
-                    Home
+                <a class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
+                    <button onclick="window.history.back()">Home</button>
                 </a>
                 <a href="/policies.html" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
                     Our Policies
@@ -119,7 +119,7 @@ function injectNavbar() {
                         <i class="fas fa-user text-2xl"></i>Logout
                     </a>` : `
                     <button onclick="logout()" class="hidden lg:inline-block p-2 text-black font-semibold transition duration-200 rounded-full bg-red-200 cursor-pointer border-[#3c532f] border mr-1 flex items-center justify-center border-2 border-red-700 hover:bg-red-300">
-                        <i class="fas fa-sign-out-alt text-xl padding-4"></i><span class="m-1 mb-5 relative bottom-[2px]">Logout</span>
+                        <span class="m-1 mb-5 relative">Logout</span>
                     </button>`
                 }
                 <button id="menu-btn" class="md:hidden text-2xl text-gray-700">

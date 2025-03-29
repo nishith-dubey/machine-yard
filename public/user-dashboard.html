@@ -64,22 +64,33 @@
     <!-- Navbar Placeholder (preserved from original) -->
     <div id="navbar"></div>
     <style>
-        @keyframes moveHorizon {
-          0% { transform: translateX(10vw); }
-          50% { transform: translateX(80vw); }
-          100% { transform: translateX(10vw); }
+      @keyframes moveHorizon {
+        0% {
+          transform: translateX(10vw);
         }
-      </style>
-      
-      <div class=" z-10 pointer-events-none overflow-hidden">
-        <!-- Machine 1 (starts immediately) -->
-        <div class="absolute z-10 top-20 animate-[moveHorizon_15s_ease_infinite] opacity-40">
-          <img src="construction-2027213.svg" alt="" class="w-32">
-        </div>
+        50% {
+          transform: translateX(80vw);
+        }
+        50.00001%{
+          transform: translateX(10vw);
+        }
+        100% {
+          transform: translateX(80vw);
+        }
+      }
+    </style>
+
+    <div class="z-10 pointer-events-none overflow-hidden">
+      <!-- Machine 1 (starts immediately) -->
+      <div
+        class="absolute z-10 top-[82px] animate-[moveHorizon_35s_ease_infinite] opacity-30"
+      >
+        <img src="construction-2027213.svg" alt="" class="w-32" />
       </div>
+    </div>
     <div class="container mx-auto px-6 py-12 z-50">
       <!-- Header -->
-      <div class="text-center z-50 mb-12">
+      <div class="text-center z-50 mb-[25px]">
         <h1 class="text-5xl font-extrabold z-50 text-custom-dark mb-4">
           Machine Yard
         </h1>
@@ -90,14 +101,14 @@
 
       <!-- Search Section -->
       <div
-        class="bg-white p-8 rounded-2xl z-50 shadow-lg mb-12 animate-fade-in border border-custom-dark/10"
+        class="bg-white p-6 rounded-2xl z-50 shadow-lg mb-8 animate-fade-in border border-custom-dark/10"
       >
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             id="location"
             type="text"
             placeholder="Search by location..."
-            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 text-green-500 placeholder:text-gray-700"
+            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 text-custom-dark placeholder:text-gray-700"
           />
           <select
             id="type"
@@ -361,6 +372,7 @@
                 throw new Error(err.error || "Failed to fetch bookings");
               });
             }
+            
             return res.json();
           })
           .then((data) => {
