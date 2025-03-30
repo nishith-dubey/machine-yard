@@ -1,142 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navbar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="/css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <title>Back Button</title>
+  <style>
+    .back-btn {
+      transition: all 0.3s ease-in-out;
+    }
+    .back-btn:hover {
+      transform: translateX(-4px);
+      background-color: #2a431c;
+    }
+    .back-btn:active {
+      transform: translateX(-2px) scale(0.95);
+    }
+  </style>
 </head>
-<body>
-    <!-- Navbar Container -->
-    <nav class="h-16 sticky top-0 z-20 bg-[#fcfaf8] shadow-sm border-b border-[#e2e0de] overflow-hidden">
-        <div class="px-6 flex items-center justify-around">
-            <!-- Logo -->
-            <a href="/" class="sm:w-20 h-16 bg-contain bg-center bg-no-repeat flex items-center justify-center">
-                <img src="logo.jpeg" class="w-30" alt="MY">
-            </a>
+<body class="flex justify-center items-center h-screen bg-gray-100">
 
-            <!-- Desktop Links -->
-            <div class="ml-[20vh] md:ml-[10vh] sm:ml-[5vh] hidden md:flex gap-10">
-                <a href="/" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
-                    Home
-                </a>
-                <a href="/" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
-                    Need a Machine?
-                </a>
-                <a href="/MachineOwner" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
-                    Have a machine?
-                </a>
-                <a href="/" class="text-[#3c532f] font-bold text-[16px] relative hover:after:scale-x-100 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[1.5px] after:bg-[#3c532f] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 py-1">
-                    Our Policies
-                </a>
-            </div>
+  <button onclick="history.back()" 
+    class="back-btn p-3 rounded-full bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+    <i class="fas fa-arrow-left text-xl"></i>
+  </button>
 
-            <!-- Search and Icons -->
-            <div class="flex items-center gap-10 mr-[0.5vh]">
-                <!-- Typewriter Search Bar -->
-                <div id="search-bar" class="w-[400px] p-2 text-[16px] rounded-md border-[#3c532f] border flex bg-white items-center">
-                    <i class="fas fa-search mr-2 cursor-pointer"></i>
-                    <input type="text" id="search-input" class="outline-none placeholder-[#3c532f] w-full h-full" autocomplete="off">
-                </div>
-
-                <div id="login-btn" class="hidden lg:inline-block p-2 text-black font-bold transition duration-200 rounded-full bg-gray-200 cursor-pointer border-[#3c532f] border mr-1">
-                    <i class="fas fa-user text-2xl"></i>
-                </div>
-
-                <!-- Hamburger Menu -->
-                <button id="menu-btn" class="md:hidden text-2xl text-gray-700">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-            <div class="flex flex-col items-start px-4 py-2">
-                <a href="/" class="py-2 text-[#3c532f] font-bold">Home</a>
-                <a href="/moto" class="py-2 text-[#3c532f] font-bold">Moto</a>
-                <a href="/machines" class="py-2 text-[#3c532f] font-bold">Machines</a>
-                <a href="/updates" class="py-2 text-[#3c532f] font-bold">Updates</a>
-                <a href="/policies" class="py-2 text-[#3c532f] font-bold">Our Policies</a>
-                <a id="mobile-login" class="py-2 text-[#3c532f] font-bold">Login</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Login Modal (Hidden by default) -->
-    <div id="login-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg">
-            <h2 class="text-xl font-bold mb-4">Login</h2>
-            <!-- Add your login form here -->
-            <button id="close-modal" class="mt-4 px-4 py-2 bg-[#3c532f] text-white rounded">Close</button>
-        </div>
-    </div>
-
-    <script>
-        // Typewriter Search Bar
-        const texts = ["Search for tractors", "Search for JCBs", "Search for harvesters"];
-        let index = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        const searchInput = document.getElementById('search-input');
-
-        function typeWriter() {
-            const currentText = texts[index];
-            if (!isDeleting) {
-                if (charIndex < currentText.length) {
-                    searchInput.placeholder = currentText.substring(0, charIndex + 1);
-                    charIndex++;
-                    setTimeout(typeWriter, 100);
-                } else {
-                    setTimeout(() => { isDeleting = true; typeWriter(); }, 3000);
-                }
-            } else {
-                if (charIndex > 0) {
-                    searchInput.placeholder = currentText.substring(0, charIndex - 1);
-                    charIndex--;
-                    setTimeout(typeWriter, 50);
-                } else {
-                    isDeleting = false;
-                    index = (index + 1) % texts.length;
-                    setTimeout(typeWriter, 100);
-                }
-            }
-        }
-
-        searchInput.addEventListener('focus', () => {
-            searchInput.placeholder = '';
-        });
-        typeWriter();
-
-        // Menu Toggle
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        let menuOpen = false;
-
-        menuBtn.addEventListener('click', () => {
-            menuOpen = !menuOpen;
-            mobileMenu.classList.toggle('hidden');
-            menuBtn.innerHTML = menuOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        });
-
-        // Login Modal
-        const loginBtn = document.getElementById('login-btn');
-        const mobileLogin = document.getElementById('mobile-login');
-        const loginModal = document.getElementById('login-modal');
-        const closeModal = document.getElementById('close-modal');
-
-        function toggleModal() {
-            loginModal.classList.toggle('hidden');
-            document.body.style.overflow = loginModal.classList.contains('hidden') ? 'auto' : 'hidden';
-        }
-
-        loginBtn.addEventListener('click', toggleModal);
-        mobileLogin.addEventListener('click', toggleModal);
-        closeModal.addEventListener('click', toggleModal);
-    </script>
 </body>
 </html>
