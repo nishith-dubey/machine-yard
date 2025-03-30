@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Machine Yard</title>
     <!-- Tailwind CSS -->
+     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Framer Motion -->
     <script src="https://cdn.jsdelivr.net/npm/framer-motion@10.16.4/dist/framer-motion.min.js"></script>
@@ -105,14 +106,14 @@
       >
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
-            id="location"
-            type="text"
-            placeholder="Search by location..."
-            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 text-custom-dark placeholder:text-gray-700"
-          />
+  id="location"
+  type="text"
+  placeholder=""
+  class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl outline-none focus:ring-1 focus:ring-custom-dark/80 transition duration-300 text-custom-dark placeholder:text-gray-700"
+/>
           <select
             id="type"
-            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-2 focus:ring-custom-dark/50 transition duration-300 placeholder:text-gray-700"
+            class="w-full p-4 bg-custom-light border border-custom-dark/20 rounded-xl focus:ring-1 focus:ring-custom-dark/80 transition duration-300 outline-none placeholder:text-gray-700"
           >
             <option value="">Select Machine Type</option>
             <option value="agriculture">Agriculture</option>
@@ -132,6 +133,7 @@
       <section class="mb-16">
         <h2 class="text-3xl font-bold text-center text-custom-dark mb-8">
           Available Machines
+          <div class="border-t-[3px] border-green-800 mt-[3px] w-60 animate-pulse justify-self-center"></div>
         </h2>
         <div
           id="machines"
@@ -143,6 +145,7 @@
       <section>
         <h2 class="text-3xl font-bold text-center text-custom-dark mb-8">
           My Bookings
+          <div class="border-t-[3px] border-green-800 mt-[3px] w-40 animate-pulse justify-self-center"></div>
         </h2>
         <div
           id="bookings"
@@ -206,7 +209,7 @@
         };
 
         return `
-    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative overflow-hidden group">
+    <div class="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 relative overflow-hidden group border">
         <!-- Top Badge -->
         <div class="absolute top-0 right-0 ${
           typeColors[machine.type] || typeColors.default
@@ -215,7 +218,7 @@
         </div>
 
         <!-- Machine Image -->
-        <div class="mb-6 relative overflow-hidden rounded-xl aspect-video">
+        <div class="mb-4 relative overflow-hidden rounded-xl aspect-video">
             ${
               machine.images?.length > 0
                 ? `
@@ -362,99 +365,119 @@
           });
       }
       async function getOwnerName(ownerId) {
-    try {
-        const response = await fetch(`https://machine-yard.vercel.app/api/owners1/${ownerId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        try {
+          const response = await fetch(
+            `https://machine-yard.vercel.app/api/owners1/${ownerId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-        if (!response.ok) {
+          if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Failed to fetch owner name");
+          }
+
+          const data = await response.json();
+          return data.name || "Unknown Owner"; // ✅ Correctly return owner name
+        } catch (error) {
+          console.error("Error fetching owner name:", error);
+          utils.showToast(`Error: ${error.message}`, "error");
+          return "Unknown Owner";
         }
+      }
 
-        const data = await response.json();
-        return data.name || "Unknown Owner"; // ✅ Correctly return owner name
-    } catch (error) {
-        console.error("Error fetching owner name:", error);
-        utils.showToast(`Error: ${error.message}`, "error");
-        return "Unknown Owner";
-    }
-}
+      async function fetchBookings() {
+        try {
+          const response = await fetch(
+            "https://machine-yard.vercel.app/api/bookings/user",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-async function fetchBookings() {
-    try {
-        const response = await fetch("https://machine-yard.vercel.app/api/bookings/user", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) {
+          if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || "Failed to fetch bookings");
-        }
+          }
 
-        const bookings = await response.json();
-        console.log(bookings);
+          const bookings = await response.json();
+          console.log(bookings);
 
-        const bookingsDiv = document.getElementById("bookings");
+          const bookingsDiv = document.getElementById("bookings");
 
-        if (bookings.length === 0) {
-            bookingsDiv.innerHTML = '<p class="text-center text-gray-500 col-span-full text-lg">You have no bookings yet.</p>';
+          if (bookings.length === 0) {
+            bookingsDiv.innerHTML =
+              '<p class="text-center text-gray-500 col-span-full text-lg">You have no bookings yet.</p>';
             return;
-        }
+          }
 
-        // 🔄 Fetch owner names in parallel for all bookings
-        const bookingsWithOwners = await Promise.all(
+          // 🔄 Fetch owner names in parallel for all bookings
+          const bookingsWithOwners = await Promise.all(
             bookings.map(async (booking) => {
-                const ownerName = await getOwnerName(booking.machine.owner);
-                return { ...booking, ownerName };
+              const ownerName = await getOwnerName(booking.machine.owner);
+              return { ...booking, ownerName };
             })
-        );
+          );
 
-        // 🔥 Update UI with owner names
-        bookingsDiv.innerHTML = bookingsWithOwners
+          bookingsDiv.innerHTML = bookingsWithOwners
             .map(
-                (booking) => `
-                    <div class="bg-white p-6 rounded-xl shadow-md card-hover">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3">${booking.machine.name}</h3>
+              (booking) => `
+                    <div class="bg-white border-2 p-6 rounded-xl shadow-md hover:-translate-y-4 transition-transform duration-300">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">${
+                          booking.machine.name
+                        }</h3>
                         ${
-                            booking.machine.images && booking.machine.images.length > 0
-                                ? `<img src="${booking.machine.images[0]}" alt="${booking.machine.name}" class="w-full h-32 object-cover rounded-lg mb-4">`
-                                : '<p class="text-gray-500 italic mb-4">No image available</p>'
+                          booking.machine.images &&
+                          booking.machine.images.length > 0
+                            ? `<img src="${booking.machine.images[0]}" alt="${booking.machine.name}" class="w-full h-32 object-cover rounded-lg mb-4">`
+                            : '<p class="text-gray-500 italic mb-4">No image available</p>'
                         }
-                        <p class="text-gray-600 text-sm mb-1">
-                            <i class="fas fa-user mr-2 text-slate-700"></i>Machine Owner: <strong>${booking.ownerName}</strong>
+                        <p class="text-gray-600">
+                            <i class="fas fa-user mr-2 text-slate-700"></i>Machine Owner: <strong>${
+                              booking.ownerName
+                            }</strong>
                         </p>
-                        <p class="text-gray-600 text-sm mb-1">
-                            <i class="fas fa-clock mr-2 text-slate-700"></i>Hours: ${booking.hours}
+                        <p class="text-gray-600">
+                            <i class="fas fa-clock mr-2 text-slate-700"></i>Hours: ${
+                              booking.hours
+                            }
                         </p>
-                        <p class="text-gray-600 text-sm mb-1">
-                            <i class="fas fa-calendar mr-2 text-slate-700"></i>Date & Time: ${booking.startTime}
+                        <p class="text-gray-600"><i class="fas fa-calendar-alt mr-2"></i>Start: ${new Date(
+                          booking.startTime
+                        ).toLocaleString()}</p>
+                    <p class="text-gray-600"><i class="fas fa-calendar-check mr-2"></i>End: ${new Date(
+                      booking.endTime
+                    ).toLocaleString()}</p>
+                        <p class="text-gray-600">
+                            <i class="fa-solid fa-indian-rupee-sign mr-2 ml-[2px]"></i>Total Cost: ${utils.formatCurrency(
+                              booking.totalCost
+                            )}
                         </p>
-                        <p class="text-gray-600 text-sm mb-1">
-                            <i class="fa-solid fa-indian-rupee-sign ml-[2px] mr-2 text-slate-700"></i>Total Cost: ${utils.formatCurrency(booking.totalCost)}
-                        </p>
-                        <p class="text-gray-600 text-sm mb-3">
-                            <i class="fas fa-info-circle mr-2 text-green-600"></i>Status: ${booking.ownerVerified.toUpperCase()}${booking.isCancelled ? " (Cancelled)" : ""}
+                        <p class="text-gray-600 mb-3">
+                            <i class="fas fa-info-circle mr-2 text-green-600"></i>Status: ${booking.ownerVerified.toUpperCase()}${
+                booking.isCancelled ? " (Cancelled)" : ""
+              }
                         </p>
                         ${
-                            !booking.isCancelled
-                                ? `<button
+                          !booking.isCancelled && booking.ownerVerified !== 'no'
+                            ? `<button
                                     onclick="cancelBooking('${booking._id}')"
                                     class="mt-4 w-full bg-red-600 text-white p-2 rounded-lg btn-hover flex items-center justify-center gap-2 text-sm font-medium"
                                 >
                                     <i class="fas fa-times"></i> Cancel Booking
                                 </button>`
-                                : ""
+                            : ""
                         }
                     </div>
                 `
             )
             .join("");
-    } catch (error) {
-        console.error("Fetch bookings error:", error);
-        utils.showToast(`Error fetching bookings: ${error.message}`, "error");
-    }
-}
+        } catch (error) {
+          console.error("Fetch bookings error:", error);
+          utils.showToast(`Error fetching bookings: ${error.message}`, "error");
+        }
+      }
       function cancelBooking(id) {
         fetch(`https://machine-yard.vercel.app/api/bookings/cancel/${id}`, {
           method: "PUT",
@@ -513,6 +536,33 @@ async function fetchBookings() {
         fetchMachines();
         fetchBookings();
       }
+
+
+      const placeholderText = "Search by location ...";
+  const input = document.getElementById("location");
+
+  let i = 0;
+  let isDeleting = false;
+  function typeWriter() {
+    if (!isDeleting && i < placeholderText.length) {
+      // Typing
+      input.setAttribute("placeholder", placeholderText.substring(0, i + 1));
+      i++;
+      setTimeout(typeWriter, 100);
+    } else if (isDeleting && i > 0) {
+      // Deleting
+      input.setAttribute("placeholder", placeholderText.substring(0, i - 1));
+      i--;
+      setTimeout(typeWriter, 50);
+    } else {
+      // Pause and switch direction
+      isDeleting = !isDeleting;
+      setTimeout(typeWriter, 1000); // 1-second pause before restart
+    }
+  }
+
+  // Run the effect when the page loads
+  window.onload = typeWriter;
     </script>
   </body>
 </html>

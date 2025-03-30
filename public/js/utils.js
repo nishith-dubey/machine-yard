@@ -93,12 +93,20 @@ function injectNavbar() {
 
   const navbar = `
     <!-- Navbar Container -->
+    <style>
+      @keyframes float {
+  0%, 100% { transform: scale(1.05); }
+  50% { transform: scale(0.95); }
+}
+
+    </style>
     <nav class="h-16 sticky top-0 z-20 bg-[#fcfaf8] shadow-sm border-b border-[#e2e0de] overflow-hidden">
         <div class="px-6 flex items-center justify-between">
             <!-- Logo -->
             <a href="/" class="sm:w-20 h-16 bg-contain bg-center bg-no-repeat flex items-center justify-center">
-                <img src="logo.jpeg" class="w-30" alt="MY">
-            </a>
+    <img src="logo.jpeg" class="w-30 animate-[float_3s_ease-in-out_infinite]" alt="MY">
+</a>
+
 
             <!-- Desktop Links -->
             
