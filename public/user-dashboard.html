@@ -66,25 +66,34 @@
     <div id="navbar"></div>
     <style>
       @keyframes moveHorizon {
-        0% {
-          transform: translateX(7vw);
-        }
-        50% {
-          transform: translateX(85vw);
-        }
-        50.00001% {
-          transform: translateX(7vw);
-        }
-        100% {
-          transform: translateX(85vw);
-        }
-      }
+    0% {
+        transform: translateX(5vw) translateY(0px) rotate(0deg);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateX(27.5vw) translateY(0px) rotate(2deg);
+        opacity: 0.7;
+    }
+    50.00001% {
+        transform: translateX(5vw) translateY(0px) rotate(0deg);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateX(27.5vw) translateY(0px) rotate(2deg);
+        opacity: 0.7;
+    }
+}
+
+.crane {
+    animation: moveHorizon 5s infinite ease-in-out;
+}
+
     </style>
 
     <div class="z-10 pointer-events-none overflow-hidden">
       <!-- Machine 1 (starts immediately) -->
       <div
-        class="absolute z-10 top-[94px] animate-[moveHorizon_35s_ease_infinite] opacity-40"
+        class="absolute z-10 top-[91px] crane opacity-40"
       >
         <img src="construction-2027213.svg" alt="" class="w-28" />
       </div>
