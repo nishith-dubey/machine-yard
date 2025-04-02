@@ -205,6 +205,36 @@ mongoose.connect(MONGO_URI)
       }
     });
 
+    app.put('/api/machines1/reject1/:id', authenticateJWT, async (req, res) => {
+      console.log("Incoming Reject Request");
+      console.log("ID Received:", req.params.id);
+      console.log("User Role:", req.user.role);
+    
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admins can reject machines' });
+      }
+      
+      try {
+        const machine = await Machine.findByIdAndUpdate(
+          req.params.id,
+          { isRejected: true },
+          { new: true }
+        );
+        
+        if (!machine) {
+          console.log("Machine not found in DB");
+          return res.status(404).json({ error: 'Machine not found' });
+        }
+        
+        console.log("Machine Rejected:", machine);
+        res.json({ message: 'Machine rejected successfully', machine });
+      } catch (error) {
+        console.error('Rejection error:', error);
+        res.status(400).json({ error: 'Rejection failed' });
+      }
+    });
+    
+    
     // Rate Machine
     app.post('/api/machines/:id/rate', authenticateJWT, async (req, res) => {
       const { rating } = req.body;

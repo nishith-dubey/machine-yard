@@ -24,7 +24,7 @@
             <img
               id="dashboard-profile-pic"
               src="https://via.placeholder.com/150"
-              alt="User Profile"
+              alt="user Profile"
               class="w-full h-full object-cover rounded-full"
             />
           </a>
@@ -255,6 +255,7 @@
   })
     .then((res) => {
       if (!res.ok) {
+        console.log(res)
         return res.json().then((err) => {
           throw new Error(err.error || "Failed to reject machine");
         });

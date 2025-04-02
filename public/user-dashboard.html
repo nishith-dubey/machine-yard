@@ -67,7 +67,7 @@
     <style>
       @keyframes moveHorizon {
     0% {
-        transform: translateX(6vw) translateY(0px);
+        transform: translateX(-1vw) translateY(0px);
         opacity: 0.7;
     }
     50% {
@@ -75,37 +75,37 @@
         opacity: 0.7;
     }
     50.00001% {
-        transform: translateX(6vw) translateY(0px);
+        transform: translateX(70vw) translateY(0px);
         opacity: 0.7;
     }
     100% {
-        transform: translateX(25vw) translateY(0px);
+        transform: translateX(101vw) translateY(0px);
         opacity: 0.7;
     }
 }
 
 .crane {
-    animation: moveHorizon 15s infinite ease-in-out;
+    animation: moveHorizon 10s infinite linear;
 }
 
     </style>
 
-    <div class="z-10 pointer-events-none overflow-hidden">
+    <!-- <div class="z-10 pointer-events-none overflow-hidden"> -->
       <!-- Machine 1 (starts immediately) -->
-      <div
-        class="absolute z-10 top-[91px] crane "
-      >
-        <img src="construction-2027213.svg" alt="" class="w-28" />
-      </div>
-    </div>
+      <!-- <div -->
+        <!-- class="absolute z-10 top-[91px] crane " -->
+      <!-- > -->
+        <!-- <img src="construction-2027213.svg" alt="" class="w-28" /> -->
+      <!-- </div> -->
+    <!-- </div> -->
     <div class="container mx-auto px-6 py-12">
       <!-- Header -->
       <div class="text-center mb-[25px]">
         <h1 class="text-4xl relative f text-custom-dark mb-4">
-          <span class="mr-5">Machine Yard | User</span>
+          <span class="mr-5">Machine Yard | user</span>
           <div class="w-14 h-14 rounded-full border-[2px] border-[#2a431c] absolute -top-[11px] right-[385px] hover:scale-105 transition-transform duration-200">
             <a href="/user-profile.html">
-              <img id="dashboard-profile-pic" src="https://via.placeholder.com/150" alt="User Profile" class="w-full h-full object-cover rounded-full">
+              <img id="dashboard-profile-pic" src="https://via.placeholder.com/150" alt="user Profile" class="w-full h-full object-cover rounded-full">
             </a>
           </div>
         </h1>
@@ -416,7 +416,9 @@ async function fetchBookings() {
         }
 
         const bookings = await response.json();
-        console.log(bookings);
+        // console.log(bookings);
+
+        // console.log("API Response:", bookings);
 
         const bookingsDiv = document.getElementById("bookings");
 
@@ -442,11 +444,13 @@ async function fetchBookings() {
                 (booking) => `
                     <div class="bg-white border-2 p-6 rounded-xl shadow-md hover:-translate-y-4 transition-transform duration-300">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">${
-                            booking.machine.name.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())
+                          booking.machine?.name
+                          ? booking.machine.name.toLowerCase().replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())
+                          : "Unknown Machine"
                         }</h3>
                         ${
-                            booking.machine.images &&
-                            booking.machine.images.length > 0
+                            booking.machine?.images &&
+                            booking.machine?.images.length > 0
                                 ? `<img src="${booking.machine.images[0]}" alt="${booking.machine.name}" class="w-full h-32 object-cover rounded-lg mb-4">`
                                 : '<p class="text-gray-500 italic mb-4">No image available</p>'
                         }
@@ -481,6 +485,7 @@ async function fetchBookings() {
                                 ? `<button
                                         onclick="cancelBooking('${booking._id}')"
                                         class="mt-4 w-full bg-red-600 text-white p-2 rounded-lg btn-hover flex items-center justify-center gap-2 text-sm font-medium"
+                                        style="display: ${new Date(booking.endTime) > new Date() && !booking.isCancelled ? 'block' : 'none'};"
                                     >
                                         <i class="fas fa-times"></i> Cancel Booking
                                     </button>`
@@ -579,7 +584,7 @@ async function fetchBookings() {
       }
 
 
-      const placeholderText = "Search by location ...";
+  const placeholderText = "Search by location ....eg-(Indore, Bhopal, ......)";
   const input = document.getElementById("location");
 
   let i = 0;
@@ -594,11 +599,11 @@ async function fetchBookings() {
       // Deleting
       input.setAttribute("placeholder", placeholderText.substring(0, i - 1));
       i--;
-      setTimeout(typeWriter, 50);
+      setTimeout(typeWriter, 100);
     } else {
       // Pause and switch direction
       isDeleting = !isDeleting;
-      setTimeout(typeWriter, 1000); // 1-second pause before restart
+      setTimeout(typeWriter, 500); // 1-second pause before restart
     }
   }
 
