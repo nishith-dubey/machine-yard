@@ -37,7 +37,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'nishithrbd@gmail.com', // Your Gmail address
-    pass: 'sbosuslbbwzgyath', // Your Gmail App Password
+    pass: 'oyhx fmfy jslp cgkk', // Your Gmail App Password
   },
 });
 
@@ -50,7 +50,7 @@ app.use(express.json());
 mongoose.connect(MONGO_URI)
   .then(async () => {
     console.log('Connected to MongoDB');
-
+    app.use(express.json());
     // Define schemas
     const userSchema = new mongoose.Schema({
       name: { type: String, required: true },
@@ -76,6 +76,10 @@ mongoose.connect(MONGO_URI)
       rentalFeePerHour: { type: Number, required: true },
       rating: { type: Number, default: 0 },
       images: [{ type: String }],
+      ratingCount: { type: Number, default: 0 },
+      averageRating: { type: Number, default: 0 },
+      // ratingCount: { type: Number, default: 0 }
+
     });
     const Machine = mongoose.model('Machine', machineSchema);
 
@@ -87,7 +91,9 @@ mongoose.connect(MONGO_URI)
       startTime: { type: Date, required: true }, // Added for time-based booking
       endTime: { type: Date, required: true },   // Added for time-based booking
       ownerVerified: { type: String, enum: ['pending', 'yes', 'no'], default: 'pending' },
-      isCancelled: { type: Boolean, default: false }
+      isCancelled: { type: Boolean, default: false },
+      hasRated: { type: Boolean, default: false }
+
     });
     const Booking = mongoose.model('Booking', bookingSchema);
 
@@ -241,18 +247,44 @@ mongoose.connect(MONGO_URI)
     
     // Rate Machine
     app.post('/api/machines/:id/rate', authenticateJWT, async (req, res) => {
-      const { rating } = req.body;
+      const { rating, bookingId } = req.body;
+      const userId = req.user.id;
+    
       try {
         const machine = await Machine.findById(req.params.id);
-        if (!machine) return res.status(404).json({ error: 'Machine not found' });
-        machine.rating = (machine.rating + rating) / 2; // Simple average
+        const booking = await Booking.findById(bookingId);
+    
+        if (!machine || !booking) return res.status(404).json({ error: "Machine or booking not found" });
+    
+        // Validation
+        if (
+          booking.user.toString() !== userId ||
+          !booking.ownerVerified ||
+          new Date(booking.endDateTime) > new Date() ||
+          booking.hasRated
+        ) {
+          return res.status(403).json({ error: "You cannot rate this machine" });
+        }
+    
+        // Update rating
+        const totalRating = machine.averageRating * machine.ratingCount + rating;
+        machine.ratingCount += 1;
+        machine.averageRating = totalRating / machine.ratingCount;
+    
+        // Mark booking as rated
+        booking.hasRated = true;
+    
         await machine.save();
-        res.json(machine);
+        await booking.save();
+    
+        res.json({ message: "Rated successfully", averageRating: machine.averageRating });
       } catch (error) {
         console.error('Rating error:', error);
         res.status(500).json({ error: 'Rating failed' });
       }
     });
+    
+    
 
     // Create Booking (User only)
     app.post('/api/bookings', authenticateJWT, async (req, res) => {
@@ -303,18 +335,18 @@ mongoose.connect(MONGO_URI)
     });
 
     // Approve or Reject Booking (Owner only)
-    app.put('/api/bookings/verify/:id', authenticateJWT, async (req, res) => {
+    app.put('/api/bookings/verify/:id', async (req, res) => {
       console.log("Received request for booking:", req.params.id);
       console.log("Raw Request Body:", req.body);
       console.log("Status received:", req.body.status);
-      if (req.user.role !== 'owner') return res.status(403).json({ error: 'Only owners can verify bookings' });
+      // if (req.user.role !== 'owner') return res.status(403).json({ error: 'Only owners can verify bookings' });
       const { status } = req.body;
       try {
         const booking = await Booking.findById(req.params.id).populate('machine');
         if (!booking) return res.status(404).json({ error: 'Booking not found' });
-        if (booking.machine.owner.toString() !== req.user.id) {
-          return res.status(403).json({ error: 'You can only verify your own machines’ bookings' });
-        }
+        // if (booking.machine.owner.toString() !== req.user.id) {
+        //   return res.status(403).json({ error: 'You can only verify your own machines’ bookings' });
+        // }
         booking.ownerVerified = status;
         await booking.save();
         if (status === 'no') {
@@ -326,7 +358,7 @@ mongoose.connect(MONGO_URI)
           subject: `Booking ${status === 'yes' ? 'Confirmed' : 'Rejected'} for ${booking.machine.name}`,
           html: `
             <h2>Booking Update</h2>
-            <p>Hello ${booking.user.name},</p>
+            <p>Hello customer,</p>
             <p>Your booking request for <strong>${booking.machine.name}</strong> has been <strong>${status === 'yes' ? 'confirmed' : 'rejected'}</strong> by the owner.</p>
             <ul>
               <li><strong>Machine:</strong> ${booking.machine.name}</li>
