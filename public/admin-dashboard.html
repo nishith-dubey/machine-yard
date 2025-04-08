@@ -79,73 +79,58 @@
       }
 
       function fetchMachines() {
-        fetch("https://machine-yard.vercel.app/api/machines1/pending1", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((res) => {
-            if (!res.ok) {
-              return res.json().then((err) => {
-                throw new Error(err.error || "Failed to fetch machines");
-              });
-            }
-            return res.json();
-          })
-          .then((data) => {
-            const machinesDiv = document.getElementById("machines");
-            machinesDiv.innerHTML = data.length
-              ? data
-                  .map(
-                    (machine) => `
-            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200">
-              <h2 class="text-xl font-semibold text-gray-800 mb-2">${
-                machine.name
-              }</h2>
-              ${
-                machine.images && machine.images.length > 0
-                  ? `
-                <img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-md mb-4 cursor-pointer" onclick="viewImages('${machine._id}', '${machine.name}')">
-              `
-                  : '<p class="text-gray-500 italic mb-4">No image available</p>'
-              }
-              <p class="text-gray-600"><i class="fas fa-user mr-2"></i>Owner: ${
-                machine.owner.name
-              }</p>
-              <p class="text-gray-600"><i class="fas fa-id-card mr-2"></i>Reg No: ${
-                machine.regNo
-              }</p>
-              <p class="text-gray-600"><i class="fas fa-check-circle mr-2"></i>Verified: ${
-                machine.isVerified ? "Yes" : "No"
-              }</p>
-              ${
-                !machine.isVerified
-                  ? `
-                <button
-  onclick="verifyMachine('${machine._id}')"
-  class="mt-4 w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition duration-200 flex items-center justify-center gap-1"
->
-  <i class="fas fa-check"></i> Verify Machine
-</button>
-<button
-  onclick="rejectMachine('${machine._id}')"
-  class="mt-2 w-full bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition duration-200 flex items-center justify-center gap-2"
->
-  <i class="fas fa-times"></i> Reject
-</button>
+  fetch("https://machine-yard.vercel.app/api/machines1/pending1", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const machinesDiv = document.getElementById("machines");
+      machinesDiv.innerHTML = data.length
+        ? data
+            .map(
+              (machine) => `
+        <div id="machine-${machine._id}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-200">
+          <h2 class="text-xl font-semibold text-gray-800 mb-2">${machine.name}</h2>
+          ${
+            machine.images?.length
+              ? `<img src="${machine.images[0]}" alt="${machine.name}" class="w-full h-48 object-cover rounded-md mb-4 cursor-pointer" onclick="viewImages('${machine._id}', '${machine.name}')">`
+              : '<p class="text-gray-500 italic mb-4">No image available</p>'
+          }
+          <p class="text-gray-600"><i class="fas fa-user mr-2"></i>Owner: ${machine.owner.name}</p>
+          <p class="text-gray-600"><i class="fas fa-id-card mr-2"></i>Reg No: ${machine.regNo}</p>
+          <p class="text-gray-600"><i class="fas fa-check-circle mr-2"></i>Verified: ${
+            machine.isVerified ? "Yes" : "No"
+          }</p>
+          ${
+            !machine.isVerified && !machine.isRejected
+              ? `
+            <button
+              onclick="verifyMachine('${machine._id}')"
+              class="mt-4 w-full bg-green-600 text-white p-2 rounded-md hover:bg-green-700 transition duration-200 flex items-center justify-center gap-1"
+            >
+              <i class="fas fa-check"></i> Verify Machine
+            </button>
+            <button
+              onclick="rejectMachine('${machine._id}')"
+              class="mt-2 w-full bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition duration-200 flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-times"></i> Reject
+            </button>
+            `
+              : '<p class="mt-4 text-red-500 font-semibold"><i class="fas fa-times-circle mr-2"></i>Rejected</p>'
+          }
+        </div>
+      `
+            )
+            .join("")
+        : '<p class="text-center text-gray-500 col-span-full">No pending machines to verify.</p>';
+    })
+    .catch((err) => {
+      console.error("Fetch machines error:", err);
+      utils.showToast(`Error fetching machines: ${err.message}`, "error");
+    });
+}
 
-              `
-                  : '<p class="mt-4 text-green-500 font-semibold"><i class="fas fa-check-circle mr-2"></i>Verified</p>'
-              }
-            </div>
-          `
-                  )
-                  .join("")
-              : '<p class="text-center text-gray-500 col-span-full">No pending machines to verify.</p>';
-          })
-          .catch((err) => {
-            console.error("Fetch machines error:", err);
-            utils.showToast(`Error fetching machines: ${err.message}`, "error");
-          });
-      }
 
       function verifyMachine(id) {
         fetch(`https://machine-yard.vercel.app/api/machines1/verify1/${id}`, {
@@ -243,31 +228,32 @@
         }
       }
       function rejectMachine(id) {
-  if (!confirm("Are you sure you want to reject this machine?")) return;
+        if (!confirm("Are you sure you want to reject this machine?")) return;
 
-  fetch(`https://machine-yard.vercel.app/api/machines1/reject1/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({}) // No additional data needed
-  })
-    .then((res) => {
-      if (!res.ok) {
-        console.log(res)
-        return res.json().then((err) => {
-          throw new Error(err.error || "Failed to reject machine");
-        });
+        fetch(`https://machine-yard.vercel.app/api/machines1/reject1/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({}), // No additional data needed
+        })
+          .then((res) => {
+            if (!res.ok) {
+              console.log(res);
+              return res.json().then((err) => {
+                throw new Error(err.error || "Failed to reject machine");
+              });
+            }
+            utils.showToast("Machine rejected successfully", "success");
+            document.getElementById(`machine-${id}`)?.remove();
+            fetchMachines(); // Refresh the list after rejection
+          })
+          .catch((err) => {
+            console.error("Reject machine error:", err);
+            utils.showToast(`Error rejecting machine: ${err.message}`, "error");
+          });
       }
-      utils.showToast("Machine rejected successfully", "error");
-      fetchMachines(); // Refresh the list after rejection
-    })
-    .catch((err) => {
-      console.error("Reject machine error:", err);
-      utils.showToast(`Error rejecting machine: ${err.message}`, "error");
-    });
-}
 
       if (token) {
         fetchMachines();

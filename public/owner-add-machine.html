@@ -15,27 +15,35 @@
         enctype="multipart/form-data"
         class="bg-white p-4 rounded shadow max-w-md"
       >
-        <input
-          id="name"
-          type="text"
-          placeholder="Name"
-          class="p-2 border rounded w-full mb-4"
-        />
-        <div class="border mb-4 p-2 w-full rounded-sm">
-          <label for="rentalFeePerHour" class="text-gray-400">
-            Rental Fee Per Hour: ₹ <span id="rentalValue">100</span>
-          </label>
-          <input
-            id="rentalFeePerHour"
-            type="range"
-            min="100"
-            max="10000"
-            step="100"
-            value="100"
-            class="p-2 border rounded w-full"
-            oninput="document.getElementById('rentalValue').textContent = this.value"
-          />
-        </div>
+      <input
+      id="name"
+      type="text"
+      placeholder="Name"
+      class="p-2 border rounded w-full mb-4"
+    />
+    
+    <div class="border mb-4 p-2 w-full rounded-sm relative">
+      <label for="rentalFeePerHour" class="text-gray-400">
+        Rental Fee Per Hour: ₹ 
+      </label>
+      <input 
+        type="text" 
+        id="rentalValue" 
+        class="w-40 border-[1.5px] outline-gray-300 ml-4 absolute right-30 px-2 text-gray-600 font-semibold" 
+        value="100"
+        oninput="updateRange(this.value)"
+      >
+      <input
+        id="rentalFeePerHour"
+        type="range"
+        min="0"
+        max="10000"
+        step="1"
+        value="100"
+        class="p-2 border rounded w-full mt-4"
+        oninput="updateText(this.value)"
+      />
+    </div>
 
         <input
           id="location"
@@ -116,6 +124,23 @@
             utils.showToast("Error: " + error.message, "error");
           }
         });
+
+        function updateText(value) {
+    const rentalValue = document.getElementById('rentalValue');
+    const rentalDisplay = document.getElementById('rentalDisplay');
+    let numValue = Math.max(0, Math.min(10000, Math.round(value)));
+    rentalValue.value = numValue;
+    rentalDisplay.textContent = numValue;
+  }
+
+  function updateRange(value) {
+    const rentalFeePerHour = document.getElementById('rentalFeePerHour');
+    const rentalDisplay = document.getElementById('rentalDisplay');
+    let numValue = Math.max(0, Math.min(10000, Math.round(value)));
+    rentalFeePerHour.value = numValue;
+    rentalDisplay.textContent = numValue;
+    document.getElementById('rentalValue').value = numValue;
+  }
     </script>
   </body>
 </html>

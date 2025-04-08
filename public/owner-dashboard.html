@@ -134,14 +134,14 @@
         });
 
         const textResponse = await response.text(); // Capture raw response for debugging
-        console.log("Raw API Response:", textResponse); // Debug log
+        // console.log("Raw API Response:", textResponse); // Debug log
 
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} - ${response.statusText}`);
         }
 
         const data = JSON.parse(textResponse); // Manually parse response
-        console.log(data.owner)
+        // console.log(data.owner)
         return {
             name: data.owner.name || "Unknown Customer",
             email: data.email.email || "No Email Provided",
@@ -165,7 +165,7 @@ async function fetchBookings() {
         }
 
         const data = await response.json();
-        console.log("API Response:", data); // Debugging
+        // console.log("API Response:", data); // Debugging
 
         const bookingsWithCustomers = await Promise.all(
             data.map(async (booking) => {
@@ -258,6 +258,7 @@ async function fetchBookings() {
     }
 
     function verifyBooking(id, status) {
+      console.log("Verifying booking:", id, "Status:", status);  // Debugging line
       fetch(`https://machine-yard.vercel.app/api/bookings/verify/${id}`, {
         method: "PUT",
         headers: {
@@ -267,11 +268,11 @@ async function fetchBookings() {
         body: JSON.stringify({ status })
       })
         .then((res) => {
-          if (!res.ok) {
-            return res.json().then((err) => {
-              throw new Error(err.error || 'Failed to verify booking');
-            });
-          }
+          // if (!res.ok) {
+          //   return res.json().then((err) => {
+          //     throw new Error(err.error || 'Failed to verify booking');
+          //   });
+          // }
           utils.showToast(`Booking ${status === 'yes' ? 'approved' : 'rejected'} successfully`, 'success');
           fetchBookings();
         })

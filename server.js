@@ -57,7 +57,10 @@ mongoose.connect(MONGO_URI)
       email: { type: String, required: true, unique: true },
       password: { type: String, required: true },
       role: { type: String, enum: ['user', 'owner', 'admin'], default: 'user' },
-      profilePic: { type: String } 
+      profilePic: { type: String } ,
+      
+  resetToken: String,
+  tokenExpires: Date
     });
     const User = mongoose.model('User', userSchema);
 
@@ -68,6 +71,7 @@ mongoose.connect(MONGO_URI)
       owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       isVerified: { type: Boolean, default: false },
       isAvailable: { type: Boolean, default: true },
+      isRejected: { type: Boolean, default: false },
       regNo: { type: String, unique: true },
       rentalFeePerHour: { type: Number, required: true },
       rating: { type: Number, default: 0 },
@@ -288,7 +292,7 @@ mongoose.connect(MONGO_URI)
         });
 
         // Mark machine as unavailable until booking is complete or cancelled
-        machine.isAvailable = false;
+        // machine.isAvailable = false;
         await machine.save();
 
         res.status(201).json(booking);
@@ -300,6 +304,9 @@ mongoose.connect(MONGO_URI)
 
     // Approve or Reject Booking (Owner only)
     app.put('/api/bookings/verify/:id', authenticateJWT, async (req, res) => {
+      console.log("Received request for booking:", req.params.id);
+      console.log("Raw Request Body:", req.body);
+      console.log("Status received:", req.body.status);
       if (req.user.role !== 'owner') return res.status(403).json({ error: 'Only owners can verify bookings' });
       const { status } = req.body;
       try {
@@ -354,6 +361,8 @@ mongoose.connect(MONGO_URI)
         booking.isCancelled = true;
         await booking.save();
 
+        machine.isAvailable = false;
+        await Machine.save();
         // Check if machine should be made available again
         const activeBookings = await Booking.find({
           machine: booking.machine._id,
@@ -448,14 +457,18 @@ mongoose.connect(MONGO_URI)
     // Get Pending Machines (Admin only)
     app.get('/api/machines1/pending1', authenticateJWT, async (req, res) => {
       if (req.user.role !== 'admin') return res.status(403).json({ error: 'Access denied' });
+    
       try {
-        const machines = await Machine.find({ isVerified: false }).populate('owner', 'name');
+        const machines = await Machine.find({ isVerified: false, isRejected: { $ne: true } })
+          .populate('owner', 'name');
+          
         res.json(machines);
       } catch (error) {
         console.error('Error fetching machines:', error);
         res.status(500).json({ error: 'Failed to fetch machines' });
       }
     });
+    
 
     // Delete Machine (Owner only)
     app.delete('/api/machines/:id', authenticateJWT, async (req, res) => {
@@ -516,6 +529,50 @@ app.put('/api/auth/profile', authenticateJWT, upload.single('profilePic'), async
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  const resetToken = Math.random().toString(36).substr(2); // Simple token
+  user.resetToken = resetToken;
+  user.tokenExpires = Date.now() + 3600000; // 1 hour expiry
+  await user.save();
+
+  const resetLink = `https://machine-yard.vercel.app/api/auth/reset-password/${resetToken}`;
+  console.log(`Reset Link: ${resetLink}`); // Just log instead of email
+  
+  // Send email
+  await transporter.sendMail({
+    from: 'nishithrbd@gmail.com',
+    to: email,
+    subject: "Password Reset Request",
+    html: `<p>Click the link below to reset your password:</p>
+           <a href="${resetLink}">${resetLink}</a>
+           <p>This link expires in 1 hour.</p>`,
+  });
+
+  // res.json({ message: "Password reset link sent to your email" });
+  res.json({ message: "Password reset link generated", resetLink });
+});
+
+
+app.post('/api/auth/reset-password/:token', async (req, res) => {
+  const { password } = req.body;
+  const user = await User.findOne({ resetToken: req.params.token, tokenExpires: { $gt: Date.now() } });
+
+  if (!user) return res.status(400).json({ error: "Invalid or expired token" });
+
+  user.password = await bcrypt.hash(password, 10);
+  user.resetToken = undefined;
+  user.tokenExpires = undefined;
+  await user.save();
+
+  res.json({ message: "Password reset successful" });
+});
+
     // Static files AFTER API routes
     app.use(express.static(join(__dirname, 'public')));
 
